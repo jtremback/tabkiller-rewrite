@@ -11,6 +11,8 @@
     "stylus": "*",
     "mocha": "~1.12.0",
     "nodemon": "~0.7.8",
-    "mongoose": "~3.6.15"
+    "mongoose": "~3.6.15",
+    "tape": "~1.0.4",
+    "url-tools": "0.0.1"
   }
 }

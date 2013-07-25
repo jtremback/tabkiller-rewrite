@@ -5,10 +5,9 @@ var mongoose = require('mongoose')
    , ObjectId = Schema.ObjectId;
  
 var postSchema = new Schema({
-    thread: ObjectId,
-    date: {type: Date, default: Date.now},
+    session: ObjectId,
     author: {type: String, default: 'Anon'},
-    post: String
+    url: String
 });
  
 module.exports = mongoose.model('Post', postSchema);

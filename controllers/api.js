@@ -6,11 +6,11 @@
 */
  
  
-var Thread = require('../models/thread.js');
+var Session = require('../models/thread.js');
 var Post = require('../models/post.js');
  
 exports.thread = function(req, res) {
-    new Thread( {
+    new Session( {
       title: req.body.title, 
       author: req.body.author
     }).save();
@@ -20,14 +20,14 @@ exports.thread = function(req, res) {
 
 
 exports.list = function(req, res) {
-  Thread.find(function(err, threads) {
+  Session.find(function(err, threads) {
     res.send(threads);
   });
 }
  
 // first locates a thread by title, then locates the replies by thread ID.
 exports.show = (function(req, res) {
-    Thread.findOne({title: req.params.title}, function(error, thread) {
+    Session.findOne({title: req.params.title}, function(error, thread) {
         // notifies user if there is no such thread, returns to avoid crashing
         if (!thread) {
           res.send('no such thread');
