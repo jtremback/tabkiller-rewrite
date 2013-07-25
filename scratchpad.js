@@ -21,24 +21,25 @@
 // 	console.log(printUrl(cases[i]))
 // };
 
-var request = require('request');
+var request = require('request'),
+	cheerio = require('cheerio');
 
 
 var harvestPage = function (saniUrl) {
 	var prefixes = [
-		'https://sdfg',
-		'https://w4rt',
-		'https://sdfg',
-		'https://git'
-	]
+		'http://'
+		, 'https://'
+		]
+		, body;
 
+	// cycles through prefixes, assigning the body to body if it is successful, calling itself with new prefix if not
 	function get(prefix) {
 		if (prefix) {
 			request(prefix + saniUrl, function(error, response, body) {
 				if (!error && response.statusCode == 200) {
-					console.log(response);
+					body = body;
 				} else {
-					return get(prefixes.shift())
+					return get(prefixes.shift());
 				}
 			})
 		} else {
@@ -48,13 +49,26 @@ var harvestPage = function (saniUrl) {
 
 	get(prefixes.shift());
 
+	var locations = [
+		'link[rel="icon"]'
+		, 'link[rel="shortcut icon"]'
+	]
+	, $ = cheerio.load(body);
 
-	
+	function findFavi(location) {
+		if (location) {
+			//# this is where cheerio tries the various spots
+		} else {
+			//# this is where the root level option is executed
+			return findFavi(locations.shift());
+		}
+	}
+
 }
 
 
 
-harvestPage('hub.com/mikeal/request/blob/master/README.md')
+harvestPage('github.com/mikeal/request/blob/master/README.md')
 
 
 
