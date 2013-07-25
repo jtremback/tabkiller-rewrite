@@ -1,0 +1,19 @@
+The browser extension submits a POST request to the API. The POST request contains a session id and a list of urls. The URLs are created as objects in the DB if they do not already exist. If they do already exist, the current session id is added to an array. A session object is also created, which contains an array of bookmarks, session id and user.
+
+POST: 
+	urls: []
+
+url model:
+	url: "" (sanitized with node url module)
+	sessions: []
+	request -> cheerio.get(
+		title, 
+		text
+			$("p").uniq()
+
+
+session model:
+	urls: []
+	user: ""
+	id: ""
+
