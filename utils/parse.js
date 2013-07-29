@@ -4,7 +4,7 @@ var request = require('request'),
 	url = require('url');
 
 
-exports.harvestPage = function (saniUrl, callback) {
+exports.pageHarvest = function (saniUrl, callback) {
 	getPage(saniUrl, function(result, urlStr){
 		var elements = scrapeElements(result);
 
