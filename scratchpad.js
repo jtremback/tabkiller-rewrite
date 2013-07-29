@@ -140,85 +140,282 @@ var request = require('request'),
 // }
 
 
-function getPage(saniUrl, callback) {
-	console.log('getPage');
-	var urlStrs = [
-			'https://qwerfqw' + saniUrl,
-			'https://wefqwe' + saniUrl,
-			'https://git' + saniUrl
-		];
 
-	(function get(urlStr) {
-		if (urlStr) {
-			request(urlStr, function(error, response, body) {
-				if (!error && response.statusCode == 200) {
-					console.log(urlStr);
-					callback(null, body, urlStr);
-				} else {
-					get(urlStrs.shift());
-				}
-			});
-		} else {
-			callback("no page");
-		}
-	})(urlStrs.shift())
-}
+// //Handcrafted
+// function getPage(saniUrl, callback) {
+// 	console.log('getPage');
+// 	var urlStrs = [
+// 			'https://qwerfqw' + saniUrl,
+// 			'https://wefqwe' + saniUrl,
+// 			'https://git' + saniUrl
+// 		];
 
-
-
-function findFavi(body, urlStr, callback) {
-	console.log('findFavi');
-	var $ = cheerio.load(body),
-		locations = [
-			urlStr ? false : url.resolve(urlStr, $('link[rel="icon"]').attr('href')),
-			urlStr ? false : url.resolve(urlStr, $('link[rel="shortcut icon"]').attr('href')),
-			// url.parse(urlStr).host + $('link[rel="icon"]').attr('href'),
-			// url.parse(urlStr).host + $('link[rel="shortcut icon"]').attr('href'),
-			url.parse(urlStr).host + '/favicon.ico'
-		];
-
-	(function find(location) {
-		console.log('in find: ', location);
-		if (location) {
-			// console.log(location);
-			request(location, function(error) {
-				console.log('in req: ', location);
-				if (!error && response.statusCode == 200) {
-					callback(null, location);
-				} else {
-					find(locations.shift());
-				}
-			});
-		} else {
-			callback("no favicon");
-		}
-	})(locations.shift())
-}
-
-// console.log('parse-test: ', url.parse('https://github.com').host);
-
-var page_info = {}
-
-getPage("hub.com/mikeal/request", function(error, body, urlStr) {
-	if (error) console.log('1: ' + error)
-	else findFavi(body, urlStr, function(error, location) {
-		if (error) console.log('2: ' + error);
-		else console.log('success', location);
-	});
-});
-
-// console.log(url.resolve('http://example.com/one/aes/whittlebaggins', 'http://bow.crackins/two'));
-// function asyncFake(data, callback) {        
-//     process.nextTick(function() {
-//     	callback(data === 'foo');
-//     });
-    
+// 	(function get(urlStr) {
+// 		if (urlStr) {
+// 			request(urlStr, function(error, response, body) {
+				
+// 				if (!error && response.statusCode == 200) {
+// 					console.log('get success: ', urlStr);
+// 					callback(null, body, urlStr);
+// 				} else {
+// 					get(urlStrs.shift());
+// 				}
+			
+// 			});
+// 		} else {
+// 			callback("no page");
+// 		}
+// 	})(urlStrs.shift())
 // }
 
-// asyncFake('bar', function(result) {
-//     if (result) {
-//     	console.log(true);
-//     } else {
-//     	console.log(false);
-//     }
+
+// //Pretty janky, this guards the url.resolve against erroring
+// function safeResolve(base, link, failure) {
+// 	return link ? url.resolve(base, link) : failure;
+// }
+
+
+// function findFavi($, urlStr, callback) {
+// 	console.log('findFavi');
+// 	var	locations = [
+// 			safeResolve(urlStr, $('link[rel="icon"]').attr('href'), 'arse'),
+// 			safeResolve(urlStr, $('link[rel="shortcut icon"]').attr('href'), 'arse'),
+// 			url.parse(urlStr).host + '/favicon.ico'
+// 		];
+
+// 	(function find(location) {
+// 		console.log('in find: ', location);
+// 		if (location) {
+// 			// console.log(location);
+// 			request(location, function(error, response) {
+// 				console.log('in req: ', location);
+			
+// 				if (!error && response.statusCode == 200) {
+// 					callback(null, location);
+// 				} else {
+// 					find(locations.shift());
+// 				}
+			
+// 			});
+// 		} else {
+// 			callback(null, false);
+// 		}
+// 	})(locations.shift())
+// }
+
+
+// var page_info = {}
+
+// getPage("hub.com/mikeal/request", function(error, body, urlStr) {
+// 	if (error) console.log('1: ' + error)
+// 	else {
+// 		var $ = cheerio.load(body);
+
+// 		findFavi($, urlStr, function(error, location) {
+// 			if (error) page_info.favicon = false;
+// 			else page_info.favicon = location;
+// 		});
+
+// 		page_info.content = $('p').text();
+// 		page_info.title = $('title').text();
+
+// 		console.log(page_info)
+// 	}
 // });
+
+
+
+//Using async
+function pageHarvest(saniUrl) {
+	async.waterfall([
+
+		function(callback) {
+			var urlStrs = [
+					'https://qwerfqw' + saniUrl,
+					'https://wefqwe' + saniUrl,
+					'https://ian' + saniUrl
+				];
+
+			(function get(urlStr) {
+				if (urlStr) {
+
+					request(urlStr, function(error, response, body) {
+						if (!error && response.statusCode == 200) {
+							callback(null, body, urlStr);
+						} else {
+							get(urlStrs.shift());
+						}
+					});
+
+				} else {
+					callback("no page");
+				}
+			})(urlStrs.shift())
+		},
+
+		function(body, urlStr, callback) {
+			var $ = cheerio.load(body);
+
+			async.parallel({
+
+				favi_location: function(urlStr, callback) {
+					
+					function safeResolve(base, link, failure) {
+						return link ? url.resolve(base, link) : failure;
+					}
+
+					var	locations = [
+							safeResolve(urlStr, $('link[rel="icon"]').attr('href'), 'arse'),
+							safeResolve(urlStr, $('link[rel="shortcut icon"]').attr('href'), 'arse'),
+							url.parse(urlStr).host + '/favicon.ico'
+						];
+
+					(function find(location) {
+						console.log('in find: ', location);
+						if (location) {
+
+							request(location, function(error, response) {
+								if (!error && response.statusCode == 200) {
+									callback(null, location);
+								} else {
+									find(locations.shift());
+								}
+							});
+
+						} else {
+							callback(null, false);
+						}
+					})(locations.shift())
+				},
+
+				content: function($, callback) {
+					callback(null, $('p').text())
+				},
+
+				title: function(callback) {
+					callback(null, $('title').text())
+				}
+
+			},
+			//Finish Parallel
+			function(error, results) {
+				callback(results);
+			});
+		}
+	],
+	//Finish Waterfall
+	function(error, results) {
+		console.log(results)
+	});
+}
+
+
+
+// //harvest elements
+// function elementHarvest(html) {
+// 	var $ = cheerio.load(html);
+// 	async.waterfall([
+
+
+
+// 	])
+// }
+
+
+function getPage (saniUrl, callback) {
+	var urlStrs = [
+		'http://' + saniUrl,
+		'https://' + saniUrl
+	];
+
+	var result, urlStr;
+	async.until(
+		function () { return result },
+		function (cb) {
+			urlStr = urlStrs.shift();
+			request(urlStr, function(error, response, body) {
+				result = body;
+				cb();
+			});
+		},
+		function () { callback(result, urlStr) }
+	)
+}
+
+
+
+function scrapeElements (body) {
+	var $ = cheerio.load(body);
+
+	return {
+		favi_urls: [
+			$('link[rel="icon"]').attr('href')
+			, $('link[rel="shortcut icon"]').attr('href')
+			, '/favicon.ico'
+			],
+		title: $('title').text(),
+		content: $('p').text()
+	}
+}
+
+
+
+function findFavicon (favi_urls, urlStr, callback) {
+	async.each(
+		favi_urls, //iterate over
+
+		function(favi_url, cb) {
+			if (favi_url) {
+				full_favi_url = url.resolve(urlStr, favi_url);
+				request(full_favi_url, function(error) {
+					if (!error) {
+						cb(full_favi_url);
+					} else {
+						cb(null);
+					}
+				});
+			} else {
+				cb(null);
+			}
+		}, //iterator
+
+		function(success){
+			callback(success);
+		} //success callback
+	)
+}
+
+
+function harvestPage (saniUrl, callback) {
+	getPage(saniUrl, function(result, urlStr){
+		var elements = scrapeElements(result);
+
+		findFavicon(elements.favi_urls, urlStr, function(full_favi_url) {
+			elements.favi_url = full_favi_url;
+			delete elements.favi_urls;
+			callback(elements)
+
+		})
+	});
+}
+
+var saniUrl = "en.wikipedia.org/wiki/Switzerland";
+harvestPage(saniUrl, function(elements){
+	console.log(elements)
+});
+
+// for (var i = 12; i <= 0; i++) {
+// 	var row;
+// 	for (var j = 12; j <= 0; j++) {
+// 		row.push(j)
+// 	};
+// 	console.log(row)
+// };
+
+
+// var htmlizzle = "<div>wark</div>"
+// $ = cheerio.load(htmlizzle);
+
+// console.log($('p').text() == false);
+
+
