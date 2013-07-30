@@ -1,17 +1,26 @@
 var test = require('tape');
-var parse = require('./utils/parse.js');
+var parse = require('../utils/parse.js');
+var server = require('./test-server.js');
+var test = require('tape');
+var request = require('request');
 
-test('clean urls correctly', function(t) {
-	t.plan(4);
-	var cases = [
-		"http://www.example.com/thing?=query",
-		"http://www.example.com/thing#hash",
-		"www.example.com/thing",
-		"example.com/thing"
-	],
-	target = "example.com/thing"
+// test('page harvester test', function (t) {
 
-	for (var i = cases.length - 1; i >= 0; i--) {
-		t.equal(parse.cleanUrl(cases[i]), target)
-	};
-});
+// });
+
+server.httpServe();
+
+server.setupServer(
+	'crunk',
+	'dingwhistle',
+	httpRequest
+)
+
+setTimeout( server.httpClose, 10000 )
+
+
+function httpRequest () {
+	request('http://localhost:7357/', function(error, response, body) {
+		console.log(error, body);
+	});
+}

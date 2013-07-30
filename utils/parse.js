@@ -5,6 +5,7 @@ var request = require('request'),
 
 
 exports.pageHarvest = function (saniUrl, callback) {
+	
 	getPage(saniUrl, function(result, urlStr){
 		var elements = scrapeElements(result);
 
@@ -15,69 +16,70 @@ exports.pageHarvest = function (saniUrl, callback) {
 
 		})
 	});
-}
+
+ 
+	function getPage (saniUrl, callback) {
+		var urlStrs = [
+			'http://' + saniUrl
+			, 'https://' + saniUrl
+		];
+
+		var result, urlStr;
+		async.until(
+			function () { return result },
+			function (cb) {
+				urlStr = urlStrs.shift();
+				request(urlStr, function(error, response, body) {
+					result = body;
+					cb();
+				});
+			},
+			function () { callback(result, urlStr) }
+		)
+	}
 
 
 
-function getPage (saniUrl, callback) {
-	var urlStrs = [
-		'http://' + saniUrl,
-		'https://' + saniUrl
-	];
+	function scrapeElements (body) {
+		var $ = cheerio.load(body);
 
-	var result, urlStr;
-	async.until(
-		function () { return result },
-		function (cb) {
-			urlStr = urlStrs.shift();
-			request(urlStr, function(error, response, body) {
-				result = body;
-				cb();
-			});
-		},
-		function () { callback(result, urlStr) }
-	)
-}
+		return {
+			favi_urls: [
+				$('link[rel="icon"]').attr('href')
+				, $('link[rel="shortcut icon"]').attr('href')
+				, '/favicon.ico'
+				],
+			title: $('title').text(),
+			content: $('p').text()
+		}
+	}
 
 
 
-function scrapeElements (body) {
-	var $ = cheerio.load(body);
+	function findFavicon (favi_urls, urlStr, callback) {
+		async.each(
+			favi_urls, //iterate over
 
-	return {
-		favi_urls: [
-			$('link[rel="icon"]').attr('href')
-			, $('link[rel="shortcut icon"]').attr('href')
-			, '/favicon.ico'
-			],
-		title: $('title').text(),
-		content: $('p').text()
+			function(favi_url, cb) {
+				if (favi_url) {
+					full_favi_url = url.resolve(urlStr, favi_url);
+					request(full_favi_url, function(error) {
+						if (!error) {
+							cb(full_favi_url);
+						} else {
+							cb(null);
+						}
+					});
+				} else {
+					cb(null);
+				}
+			}, //iterator
+
+			function(success){
+				callback(success);
+			} //success callback
+		)
 	}
 }
 
 
-
-function findFavicon (favi_urls, urlStr, callback) {
-	async.each(
-		favi_urls, //iterate over
-
-		function(favi_url, cb) {
-			if (favi_url) {
-				full_favi_url = url.resolve(urlStr, favi_url);
-				request(full_favi_url, function(error) {
-					if (!error) {
-						cb(full_favi_url);
-					} else {
-						cb(null);
-					}
-				});
-			} else {
-				cb(null);
-			}
-		}, //iterator
-
-		function(success){
-			callback(success);
-		} //success callback
-	)
-}
