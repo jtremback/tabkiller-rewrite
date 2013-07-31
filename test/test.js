@@ -10,9 +10,9 @@ var request = require('request');
 
 server.httpServe();
 
-server.setupServer(
-	'crunk',
-	'dingwhistle',
+server.setupServer( //Page generation:this makes a page which the parser can pull
+	'crunk', //head
+	'dingwhistle', //body
 	httpRequest
 )
 
