@@ -4,17 +4,15 @@ var server = require('./test-server.js');
 var test = require('tape');
 var request = require('request');
 
-// test('page harvester test', function (t) {
 
-// });
 
-server.httpServe();
 
-server.setupServer( //Page generation:this makes a page which the parser can pull
+server.httpServe(
 	'crunk', //head
 	'dingwhistle', //body
 	httpRequest
-)
+);
+
 
 setTimeout( server.httpClose, 10000 )
 
