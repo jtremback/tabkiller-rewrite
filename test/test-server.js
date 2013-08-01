@@ -2,7 +2,6 @@ var express = require('express');
 var app = express();
 var httpServer = require('http').createServer(app);
 
-
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 app.use(express.static(__dirname + '/public'));
@@ -10,6 +9,10 @@ app.use(express.static(__dirname + '/public'));
 
 var opts = {};
 
+exports.httpServe = function (html, callback) {
+	opts.html = html;
+	httpServer.listen('7357', callback);
+}
 
 app.get('/', function(req, res) { 
 	res.render('index', opts);
@@ -17,14 +20,6 @@ app.get('/', function(req, res) {
 	req.connection.end(); //close the socket
 	req.connection.destroy; //close it really
 });
-
-
-
-exports.httpServe = function (head, body, callback) {
-	opts.head = head;
-	opts.body = body;
-	httpServer.listen('7357', callback);
-}
 
 exports.httpClose = function () {
 	httpServer.close(function () {
