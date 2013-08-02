@@ -1,6 +1,7 @@
 var request = require('request'),
 	cheerio = require('cheerio'),
 	async = require('async'),
+	_ = require('lodash')
 	url = require('url');
 
 
@@ -19,6 +20,15 @@ exports.pageHarvest = function (saniUrl, callback) {
 		})
 	});
 
+	function resolveURLs (urls) {
+		_.map(urls, function (url) {
+			if (typeof url === 'string') {
+				
+			} else {
+				return false
+			}
+		});
+	}
  
 	function getPage (saniUrl, callback) {
 		var urlStrs = [
@@ -59,30 +69,6 @@ exports.pageHarvest = function (saniUrl, callback) {
 
 
 	function findFavicon (favi_urls, urlStr, callback) {
-		// async.each(
-		// 	favi_urls, //iterate over
-
-		// 	function(favi_url, cb) {
-		// 		if (favi_url) {
-		// 			full_favi_url = url.resolve(urlStr, favi_url);
-		// 			request(full_favi_url, function(error, response) {
-		// 				console.log(response.statusCode);
-		// 				if (error || !(response.statusCode === 200)) {
-		// 					cb(false);
-		// 				} else {
-		// 					cb(full_favi_url);
-		// 				}
-		// 			});
-		// 		} else {
-		// 			cb(false);
-		// 		}
-		// 	}, //iterator
-
-		// 	//'success' instead of usual error- TODO- switch to more elegant solution
-		// 	function(success){
-		// 		callback(success);
-		// 	} //success callback
-		// )
 		async.detect(
 			favi_urls,
 
@@ -90,11 +76,11 @@ exports.pageHarvest = function (saniUrl, callback) {
 				if (favi_url) {
 					var	full_favi_url = url.resolve(urlStr, favi_url);
 					request(full_favi_url, function(error, response) {
-						console.log(response.statusCode);
+						// console.log(response.statusCode);
 						if (error || !(response.statusCode === 200)) {
 							cb(false);
 						} else {
-							cb(full_favi_url);
+							cb(true);
 						}
 					});
 				} else {
@@ -103,6 +89,7 @@ exports.pageHarvest = function (saniUrl, callback) {
 			},
 
 			function(result){
+				// console.log(result)
 			    callback(result);
 			}
 		);
