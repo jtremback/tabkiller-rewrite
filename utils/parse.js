@@ -6,13 +6,15 @@ var request = require('request'),
 
 exports.pageHarvest = function (saniUrl, callback) {
 	
+	// This controls the process using named functions
 	getPage(saniUrl, function(result, urlStr){
-		var elements = scrapeElements(result);
+		var page = scrapeElements(result);
 
-		findFavicon(elements.favi_urls, urlStr, function(full_favi_url) {
-			elements.favi_url = full_favi_url;
-			delete elements.favi_urls;
-			callback(elements)
+		findFavicon(page.favi_urls, urlStr, function(full_favi_url) {
+			page.favi_url = full_favi_url;
+			delete page.favi_urls;
+			
+			callback(page) //CALLBACK
 
 		})
 	});
@@ -63,18 +65,20 @@ exports.pageHarvest = function (saniUrl, callback) {
 			function(favi_url, cb) {
 				if (favi_url) {
 					full_favi_url = url.resolve(urlStr, favi_url);
-					request(full_favi_url, function(error) {
-						if (!error) {
-							cb(full_favi_url);
+					request(full_favi_url, function(error, response) {
+						console.log(response.statusCode);
+						if (error || !(response.statusCode === 200)) {
+							cb(false);
 						} else {
-							cb(null);
+							cb(full_favi_url);
 						}
 					});
 				} else {
-					cb(null);
+					cb(false);
 				}
 			}, //iterator
 
+			//'success' instead of usual error- TODO- switch to more elegant solution
 			function(success){
 				callback(success);
 			} //success callback
