@@ -59,12 +59,36 @@ exports.pageHarvest = function (saniUrl, callback) {
 
 
 	function findFavicon (favi_urls, urlStr, callback) {
-		async.each(
-			favi_urls, //iterate over
+		// async.each(
+		// 	favi_urls, //iterate over
+
+		// 	function(favi_url, cb) {
+		// 		if (favi_url) {
+		// 			full_favi_url = url.resolve(urlStr, favi_url);
+		// 			request(full_favi_url, function(error, response) {
+		// 				console.log(response.statusCode);
+		// 				if (error || !(response.statusCode === 200)) {
+		// 					cb(false);
+		// 				} else {
+		// 					cb(full_favi_url);
+		// 				}
+		// 			});
+		// 		} else {
+		// 			cb(false);
+		// 		}
+		// 	}, //iterator
+
+		// 	//'success' instead of usual error- TODO- switch to more elegant solution
+		// 	function(success){
+		// 		callback(success);
+		// 	} //success callback
+		// )
+		async.detect(
+			favi_urls,
 
 			function(favi_url, cb) {
 				if (favi_url) {
-					full_favi_url = url.resolve(urlStr, favi_url);
+					var	full_favi_url = url.resolve(urlStr, favi_url);
 					request(full_favi_url, function(error, response) {
 						console.log(response.statusCode);
 						if (error || !(response.statusCode === 200)) {
@@ -76,13 +100,12 @@ exports.pageHarvest = function (saniUrl, callback) {
 				} else {
 					cb(false);
 				}
-			}, //iterator
+			},
 
-			//'success' instead of usual error- TODO- switch to more elegant solution
-			function(success){
-				callback(success);
-			} //success callback
-		)
+			function(result){
+			    callback(result);
+			}
+		);
 	}
 }
 
