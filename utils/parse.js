@@ -10,13 +10,13 @@ exports.pageHarvest = function (saniUrl, callback) {
 	// This controls the process using named functions
 	getPage(saniUrl, function(result, urlStr){
 		var page = scrapeElements(result); //Extract relevant strings
-		console.log("pageHarvest1", page);
+		// console.log("pageHarvest1", page);
 		page.favi_urls = resolveURLs(urlStr, page.favi_urls);
-		console.log("pageHarvest2", page);
+		// console.log("pageHarvest2", page);
 		findFavicon(page.favi_urls, urlStr, function(full_favi_url) {
 			page.favi_url = full_favi_url;
 			delete page.favi_urls;
-			console.log(page);
+			// console.log(page);
 			callback(page) //CALLBACK
 
 		})
@@ -26,9 +26,9 @@ exports.pageHarvest = function (saniUrl, callback) {
 
 function resolveURLs (urlStr, urls) {
 	var urls = _.compact(urls);
-	console.log('resolve', urls)
+	// console.log('resolve', urls)
 	return _.map(urls, function (url) {
-		console.log("map", url)
+		// console.log("map", url)
 		if (typeof url === 'string') {
 			return urlLib.resolve(urlStr, url)
 		} else {
@@ -78,7 +78,7 @@ function scrapeElements (body) {
 
 
 function findFavicon (favi_urls, urlStr, callback) {
-	console.log("findFavicon", favi_urls)
+	// console.log("findFavicon", favi_urls)
 	async.detect(
 		favi_urls,
 		function(favi_url, cb) {
