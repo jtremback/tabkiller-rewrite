@@ -57,7 +57,7 @@ test('finds favicon in root', function(t) {
 test('deals with incorrect favicon link', function(t) {
 	t.plan(1);
 
-	server.setOptions({'html': '<html><head><link rel="icon" href="/flavicon.ico" /><link rel="shortcut icon" href="/favicon.ico" /></head><body></body></html>'},
+	server.setOptions({'html': '<html><head><link rel="icon" href="/no_file_here.ico" /><link rel="shortcut icon" href="/favicon.ico" /></head><body></body></html>'},
 		parse.pageHarvest('localhost:7357', function(page) {
 			t.equal(page.favi_url, 'http://localhost:7357/favicon.ico');
 		})
@@ -68,7 +68,7 @@ test('deals with incorrect favicon link', function(t) {
 test('deals with no favicon, plus incorrect link', function(t) {
 	t.plan(1);
 
-	server.setOptions({'html': '<html><head><link rel="icon" href="/flavicon.ico" /><link rel="shortcut icon" href="/favicon.ico" /></head><body></body></html>', 'no_favicon': true},
+	server.setOptions({'html': '<html><head><link rel="icon" href="/no_file_here.ico" /><link rel="shortcut icon" href="/favicon.ico" /></head><body></body></html>', 'no_favicon': true},
 		parse.pageHarvest('localhost:7357', function(page) {
 			t.equal(page.favi_url, false);
 		})
