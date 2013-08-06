@@ -79,7 +79,7 @@ test('gets correct content', function(t) {
 	);
 });
 
-test('gets correct body', function(t) {
+test('gets correct title', function(t) {
 	t.plan(1);
 
 	server.setOptions({'html': '<html><head><title>crunk</title></head><body></body></html>', 'no_favicon': true},

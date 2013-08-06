@@ -4,6 +4,20 @@ var request = require('request'),
 	_ = require('lodash'),
 	urlLib = require('url');
 
+/**
+ * Scrape all neccesary information from a page. Takes a sanitized url
+ * (hostname + pathname) and returns a page object containing the information. 
+ *
+ * Examples:
+ *
+ *     	parse.pageHarvest("website.com", function(page) {
+ *			doSomething(page);
+ *		});
+ *
+ * @param {String} saniUrl
+ * @param {Function} done
+ * @api public
+ */
 
 exports.pageHarvest = function (saniUrl, callback) {
 	
@@ -27,7 +41,7 @@ function resolveURLs (urlStr, urls) {
 		if (typeof url === 'string') {
 			return urlLib.resolve(urlStr, url)
 		} else {
-			return "poop"
+			return false
 		}
 	});
 }
