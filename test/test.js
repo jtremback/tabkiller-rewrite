@@ -77,7 +77,7 @@ test('gets correct content', function(t) {
 			t.equal(page.content, 'crunk');
 		})
 	);
-})
+});
 
 test('gets correct body', function(t) {
 	t.plan(1);
@@ -87,4 +87,4 @@ test('gets correct body', function(t) {
 			t.equal(page.title, 'crunk');
 		})
 	);
-})
+});

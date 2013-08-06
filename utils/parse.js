@@ -76,18 +76,15 @@ function findFavicon (favi_urls, urlStr, callback) {
 	async.detect(
 		favi_urls,
 		function(favi_url, cb) {
-			if (favi_url) {
-				var full_favi_url = urlLib.resolve(urlStr, favi_url);
-				request(full_favi_url, function(error, response) {
-					if (error || !(response.statusCode === 200)) {
-						cb(false);
-					} else {
-						cb(true);
-					}
-				});
-			} else {
-				cb(false);
-			}
+			favi_url = urlLib.resolve(urlStr, favi_url); //Resolve full URL from link
+
+			request(favi_url, function(error, response) {
+				if (error || !(response.statusCode === 200)) {
+					cb(false);
+				} else {
+					cb(true);
+				}
+			});
 		},
 
 		function(result){
