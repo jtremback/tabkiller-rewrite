@@ -2,7 +2,37 @@ var request = require('request'),
 	cheerio = require('cheerio'),
 	async = require('async'),
 	_ = require('lodash'),
-	urlLib = require('url');
+	urlLib = require('url'),
+	urlTools = require('url-tools');
+
+/**
+ * Sanitize raw url for our system.
+ *
+ * Examples:
+ *
+ *     	parse.urlSanitize("https://www.website.com#canoe") // saniUrl = "website.com
+ *
+ * @param {String} saniUrl
+ * @param {Function} done
+ * @api public
+ */
+
+// TODO: Write tests for parse.urlSanitize
+exports.urlSanitize = function (urlStr) {
+	var options = {
+			lowercase: true,
+			removeWWW: true,
+			removeTrailingSlash: true,
+			forceTrailingSlash: false,
+			removeSearch: false,
+			removeHash: true,
+			removeHashbang: true,
+			removeProtocol: true
+		};
+	
+	return urlTools.normalize(urlStr, options);
+}
+
 
 /**
  * Scrape all neccesary information from a page. Takes a sanitized url
@@ -19,8 +49,7 @@ var request = require('request'),
  * @api public
  */
 
-exports.pageHarvest = function (saniUrl, callback) {
-	
+exports.pageHarvest = function (saniUrl, callback) {	
 	// This controls the process using named functions
 	getPage(saniUrl, function(result, urlStr){
 		var page = scrapeElements(result); //Extract relevant strings
@@ -35,11 +64,11 @@ exports.pageHarvest = function (saniUrl, callback) {
 }
 
 
-function resolveURLs (urlStr, urls) {
-	var urls = _.compact(urls);
-	return _.map(urls, function (url) {
-		if (typeof url === 'string') {
-			return urlLib.resolve(urlStr, url)
+function resolveURLs (base, links) {
+	var links = _.compact(links);
+	return _.map(links, function (link) {
+		if (typeof link === 'string') {
+			return urlLib.resolve(base, link)
 		} else {
 			return false
 		}
