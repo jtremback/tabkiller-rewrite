@@ -19,8 +19,7 @@ app.configure(function(){
  
 // set up the RESTful API, handler methods are defined in api.js
 var api = require('./controllers/api.js');
-app.post('/thread', api.thread);
-app.get('/thread/:title', api.show);
+app.post('/', api.url);
 app.get('/', api.list);
  
 http.createServer(app).listen(app.get('port'), function(){

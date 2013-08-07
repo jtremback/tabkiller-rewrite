@@ -8,6 +8,7 @@
  
 //var Session = require('../models/thread.js');
 var Url = require('../models/url.js');
+var parse = require('../utils/parse.js')
 
 //exports.thread = function(req, res) {
 //    new Session( {
@@ -20,23 +21,34 @@ var Url = require('../models/url.js');
 
 exports.url = function(req, res) {
 	var saniUrl = parse.urlSanitize(req.body.url);
-	
-	parse.pageHarvest(saniUrl, function(page) {
-		new Url({
-			title: page.title
-			, content: page.content
-			, favi_url: page.favi_url
-		}).save();
-		
-		res.end('you have succeeded');
+	parse.pageHarvest(saniUrl, function(page) {	
+		Url.findOne({sani_url: saniUrl}, function(error, url) {
+			if (!url) {
+				new Url({
+					title: page.title
+					, content: page.content
+					, favi_url: page.favi_url
+					, sani_url: saniUrl
+				}).save(res.end('url added'));
+			} else {
+				url = {
+					title: page.title
+					, content: page.content
+					, favi_url: page.favi_url
+					, sani_url: saniUrl
+				}
+				
+				url.save(res.end('url updated'))
+			}
+		})
 	});
 };
 
-//exports.list = function(req, res) {
-//  Session.find(function(err, threads) {
-//    res.send(threads);
-//  });
-//}
+exports.list = function(req, res) {
+  Url.find(function(err, urls) {
+    res.send(urls);
+  });
+}
  
 //// first locates a thread by title, then locates the replies by thread ID.
 //exports.show = (function(req, res) {
