@@ -51,15 +51,18 @@ exports.urlSanitize = function (urlStr) {
 
 exports.pageHarvest = function (saniUrl, callback) {	
 	// This controls the process using named functions
-	getPage(saniUrl, function(result, urlStr){
-		var page = scrapeElements(result); //Extract relevant strings
-		page.favi_urls = resolveURLs(urlStr, page.favi_urls);
-		findFavicon(page.favi_urls, urlStr, function(full_favi_url) {
-			page.favi_url = full_favi_url;
-			delete page.favi_urls;
-			callback(page) //CALLBACK
-
-		})
+	getPage(saniUrl, function(error, result, urlStr){
+		if (error) {
+			callback(error)
+		} else {
+			var page = scrapeElements(result); //Extract relevant strings
+			page.favi_urls = resolveURLs(urlStr, page.favi_urls);
+			findFavicon(page.favi_urls, urlStr, function(full_favi_url) {
+				page.favi_url = full_favi_url;
+				delete page.favi_urls;
+				callback(null, page) //CALLBACK
+			})
+		}
 	});
 }
 
@@ -84,15 +87,21 @@ function getPage (saniUrl, callback) {
 
 	var result, urlStr;
 	async.until(
-		function () { return result },
-		function (cb) {
+		function () { return result }
+		, function (cb) {
+			console.log(urlStrs.length);
 			urlStr = urlStrs.shift();
-			request(urlStr, function(error, response, body) {
-				result = body;
-				cb();
-			});
-		},
-		function () { callback(result, urlStr) }
+			if (urlStr) {
+				console.log(urlStr);
+				request(urlStr, function(error, response, body) {
+					result = body;
+					cb();
+				});
+			} else {
+				callback(new Error('No site found'))
+			}
+		}
+		, function () { callback(null, result, urlStr) }
 	)
 }
 

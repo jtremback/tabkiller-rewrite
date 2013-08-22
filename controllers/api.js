@@ -21,7 +21,7 @@ var parse = require('../utils/parse.js')
 
 exports.url = function(req, res) {
 	var saniUrl = parse.urlSanitize(req.body.url);
-	parse.pageHarvest(saniUrl, function(page) {	
+	parse.pageHarvest(saniUrl, function(error, page) {	
 		Url.findOne({sani_url: saniUrl}, function(error, url) {
 			if (!url) {
 				new Url({
