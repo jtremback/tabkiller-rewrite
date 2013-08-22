@@ -21,7 +21,10 @@ var parse = require('../utils/parse.js')
 
 exports.url = function(req, res) {
 	var saniUrl = parse.urlSanitize(req.body.url);
-	parse.pageHarvest(saniUrl, function(error, page) {	
+	parse.pageHarvest(saniUrl, function(error, page) {
+		if (error) {
+			res.end('no such url')
+		}
 		Url.findOne({sani_url: saniUrl}, function(error, url) {
 			if (!url) {
 				new Url({
@@ -31,12 +34,11 @@ exports.url = function(req, res) {
 					, sani_url: saniUrl
 				}).save(res.end('url added'));
 			} else {
-				url = {
-					title: page.title
-					, content: page.content
-					, favi_url: page.favi_url
-					, sani_url: saniUrl
-				}
+				
+				url.title = page.title;
+				url.content = page.content;
+				url.favi_url = page.favi_url;
+				url.sani_url = saniUrl;
 				
 				url.save(res.end('url updated'))
 			}
